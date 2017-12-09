@@ -74,7 +74,7 @@ class GadgetsGenerationWizard extends Component {
             chartConfiguration: {},
             metadata: {
                 names: ['rpm', 'torque', 'horsepower', 'EngineType'],
-                types: ['linear', 'linear', 'linear', 'ordinal'],
+                types: ['LINEAR', 'LINEAR', 'LINEAR', 'ORDINAL'],
             },
             data: [],
             // UI related
@@ -174,8 +174,13 @@ class GadgetsGenerationWizard extends Component {
             const submittableConfig = {
                 name: this.state.gadgetDetails.name,
                 id: '',
-                chartConfig: this.state.chartConfiguration,
-                providerConfig: this.state.providerConfiguration
+                configs: {
+                    chartConfig: this.state.chartConfiguration,
+                    providerConfig: {
+                        type: this.state.providerType,
+                        config: this.state.providerConfiguration,
+                    },
+                },
             };
             const apis = new GadgetsGenerationAPI();
             apis.addGadgetConfiguration(JSON.stringify(submittableConfig)).then((response) => {
