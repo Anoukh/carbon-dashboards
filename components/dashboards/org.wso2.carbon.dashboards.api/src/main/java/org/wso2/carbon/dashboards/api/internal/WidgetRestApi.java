@@ -25,7 +25,6 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
-import org.owasp.encoder.Encode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.carbon.analytics.msf4j.interceptor.common.AuthenticationInterceptor;
@@ -121,7 +120,7 @@ public class WidgetRestApi implements Microservice {
                     .orElse(Response.status(NOT_FOUND).entity("Cannot find widget '" + widgetId + "'.").build());
         } catch (DashboardException e) {
             LOGGER.error("An error occurred when retrieving configuration of widget '{}'.",
-                    getEncodedString(widgetId), e);
+                    replaceCRLFCharacters(widgetId), e);
             return serverErrorResponse("Cannot retrieve configuration of widget '" + widgetId + "'.");
         }
     }
@@ -166,7 +165,7 @@ public class WidgetRestApi implements Microservice {
             }
         } catch (DashboardException e) {
             LOGGER.error("An error occurred when validating the widget name: " +
-                    getEncodedString(widgetName) + ".", e);
+                    replaceCRLFCharacters(widgetName) + ".", e);
             return Response.serverError()
                     .entity("An error occurred when validating the widget name: " + widgetName + ".").build();
         }
@@ -189,7 +188,7 @@ public class WidgetRestApi implements Microservice {
                 return Response.status(422).entity("Cannot find widget '" + widgetId + "'.").build();
             }
         } catch (DashboardException e) {
-            LOGGER.error("An error occurred when deleting widget '{}'.", getEncodedString(widgetId), e);
+            LOGGER.error("An error occurred when deleting widget '{}'.", replaceCRLFCharacters(widgetId), e);
             return Response.serverError().entity("Cannot delete widget '" + widgetId + "'.").build();
         }
     }
@@ -210,18 +209,13 @@ public class WidgetRestApi implements Microservice {
             return Response.status(CREATED).build();
         } catch (DashboardException e) {
             LOGGER.error("An error occurred when creating a new gadget from {} data.",
-                    getEncodedString(generatedWidgetConfigs.toString()), e);
+                    replaceCRLFCharacters(generatedWidgetConfigs.toString()), e);
             return Response.serverError()
                     .entity("Cannot create a new gadget from '" + generatedWidgetConfigs + "'.").build();
         }
     }
 
-    private String getEncodedString(String str) {
-        String cleanedString = str.replace('\n', '_').replace('\r', '_');
-        cleanedString = Encode.forHtml(cleanedString);
-        if (!cleanedString.equals(str)) {
-            cleanedString += " (Encoded)";
-        }
-        return cleanedString;
+    private String replaceCRLFCharacters(String str) {
+        return str.replace('\n', '_').replace('\r', '_');
     }
 }
